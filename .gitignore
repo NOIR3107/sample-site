@@ -13,8 +13,9 @@
 # testing
 /coverage
 
-# next.js
+# next.js (and side builds made with BUILD_DIR, e.g. .next-prod)
 /.next/
+/.next-*/
 /out/
 
 # production
@@ -32,9 +33,14 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
-# vercel
+# hosting
 .vercel
+.netlify
+
+# local tooling
+.claude/
 
 # typescript
 *.tsbuildinfo

@@ -1,26 +1,664 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ==========================================================================
+   Meridian Climate: design tokens
+
+   Light, calm and photographic, after the best sites in the category
+   (Quilt, Aira, Jetson): paper-white pages, navy ink, real homes.
+
+   Temperature is the only colour story:
+     frost / sky   cooling, and calm information
+     ember         heat, urgency and offers
+     navy ink      the primary action ("Get a free estimate")
+
+   Token names are historical. `mc-black` is the page colour and `mc-bone`
+   is the ink, so every inner page written against them flips with the
+   theme without being touched.
+
+   Shape system:
+     buttons and chips  full pill
+     cards and images   24px (rounded-card)
+     inputs             14px (rounded-control)
+   ========================================================================== */
+
+@theme {
+  /* Surfaces and ink ----------------------------------------------------- */
+  --color-mc-black: #f4f6f5;
+  --color-mc-surface: #ffffff;
+  --color-mc-raised: #eaf1f3;
+  --color-mc-line: #d8e0e3;
+  --color-mc-bone: #0c1a26;
+  --color-mc-muted: #54616c;
+  --color-mc-navy: #0c1a26;
+  --color-mc-deep: #0f2433;
+
+  /* Temperature ---------------------------------------------------------- */
+  --color-mc-frost: #2b84c6;
+  --color-mc-sky: #7cc0ea;
+  --color-mc-ice: #e1f0fa;
+  --color-mc-cyan: #1aa7c9;
+  --color-mc-ember: #e8622b;
+  --color-mc-amber: #f3a23f;
+  --color-mc-peach: #fbe7dc;
+  --color-mc-star: #f5b301;
+  /* Legacy aliases used by inner pages. */
+  --color-mc-copper: #e8622b;
+  --color-mc-mint: #1aa7c9;
+
+  /* Typefaces ------------------------------------------------------------ */
+  --font-display: var(--font-newsreader), ui-serif, Georgia, serif;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  /* Type scale ----------------------------------------------------------- */
+  --text-hero: clamp(2.9rem, 6.2vw, 5.6rem);
+  --text-hero--line-height: 0.98;
+  --text-hero--letter-spacing: -0.025em;
+  --text-hero--font-weight: 400;
+
+  --text-section: clamp(2.3rem, 4.6vw, 4rem);
+  --text-section--line-height: 1.02;
+  --text-section--letter-spacing: -0.02em;
+  --text-section--font-weight: 400;
+
+  --text-card: 1.375rem;
+  --text-card--line-height: 1.2;
+  --text-card--letter-spacing: -0.015em;
+  --text-card--font-weight: 500;
+
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.6;
+  --text-body--letter-spacing: 0;
+  --text-body--font-weight: 400;
+
+  --text-eyebrow: 0.75rem;
+  --text-eyebrow--line-height: 1;
+  --text-eyebrow--letter-spacing: 0.14em;
+  --text-eyebrow--font-weight: 500;
+
+  --text-spec: 0.8125rem;
+  --text-spec--line-height: 1.5;
+  --text-spec--letter-spacing: 0.01em;
+  --text-spec--font-weight: 400;
+
+  --container-page: 90rem;
+
+  --radius-control: 0.875rem;
+  --radius-card: 1.5rem;
+
+  --ease-mc: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --shadow-card: 0 1px 2px rgb(12 26 38 / 0.04), 0 12px 32px -16px rgb(12 26 38 / 0.18);
+  --shadow-lift: 0 2px 4px rgb(12 26 38 / 0.04), 0 28px 60px -24px rgb(12 26 38 / 0.28);
+  --shadow-ember: 0 12px 30px -12px rgb(232 98 43 / 0.55);
+  --shadow-float: 0 30px 80px -30px rgb(12 26 38 / 0.35);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ==========================================================================
+   Base
+   ========================================================================== */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    background-color: var(--color-mc-black);
+    -webkit-text-size-adjust: 100%;
+    /* Set on html as well as body: otherwise body's value is handed to the
+       viewport and body itself stops clipping, so off-canvas reveals widen
+       the page on phones. */
+    overflow-x: clip;
+  }
+
+  body {
+    background-color: var(--color-mc-black);
+    color: var(--color-mc-bone);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* Reveals start panels off to the side; clip (not hidden) so sticky
+       sections keep working. */
+    overflow-x: clip;
+  }
+
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    text-wrap: balance;
+  }
+
+  h3,
+  h4 {
+    font-family: var(--font-sans);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background-color: var(--color-mc-ice);
+    color: var(--color-mc-navy);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-mc-frost);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  [id] {
+    scroll-margin-top: 6rem;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ==========================================================================
+   Grain: a static noise texture on a fixed, non-interactive layer.
+   ========================================================================== */
+
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ==========================================================================
+   Reveal (IntersectionObserver driven, used by inner pages)
+   ========================================================================== */
+
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(28px);
+    will-change: opacity, transform;
+  }
+
+  [data-reveal][data-revealed] {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 800ms var(--ease-mc),
+      transform 800ms var(--ease-mc);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: auto;
+  }
+}
+
+@keyframes mc-lift {
+  from {
+    transform: translateY(0.45em);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes mc-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.8em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mc-lift {
+    animation: mc-lift 1000ms var(--ease-mc) both;
+    animation-delay: var(--rise-delay, 0ms);
+  }
+
+  .mc-rise {
+    animation: mc-rise 1000ms var(--ease-mc) both;
+    animation-delay: var(--rise-delay, 0ms);
+  }
+}
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Cool to warm, used on hairlines and data only. */
+@utility bg-thermal {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-mc-frost) 0%,
+    var(--color-mc-sky) 45%,
+    var(--color-mc-amber) 75%,
+    var(--color-mc-ember) 100%
+  );
+}
+
+@utility img-zoom {
+  transition: transform 1100ms var(--ease-mc);
+  @media (hover: hover) and (min-width: 1024px) {
+    .group:hover & {
+      transform: scale(1.045);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    .group:hover & {
+      transform: none;
+    }
+  }
+}
+
+.btn-sheen {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.btn-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.35) 50%, transparent 70%);
+  transform: translateX(-120%);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .btn-sheen:hover::after {
+    transition: transform 800ms var(--ease-mc);
+    transform: translateX(120%);
+  }
+}
+
+/* ==========================================================================
+   Moving background (landing page): the aurora, softened for a light page.
+   ========================================================================== */
+
+.aurora-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mask-image: linear-gradient(to bottom, #000 0%, #000 25%, transparent 70%);
+}
+
+.aurora-host {
+  width: 100%;
+  height: 100%;
+}
+
+.site-main {
+  position: relative;
+  z-index: 1;
+}
+
+.topo-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.45;
+  mask-image: linear-gradient(to bottom, #000 0%, #000 50%, transparent 90%);
+}
+
+/* Soft drifting colour fields. Transform only, blurred once. */
+.glow {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  pointer-events: none;
+  will-change: transform;
+}
+
+@keyframes mc-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(var(--dx, 4rem), var(--dy, 2rem), 0) scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .glow {
+    animation: mc-drift var(--dur, 18s) ease-in-out infinite alternate;
+  }
+}
+
+/* ==========================================================================
+   Booking dialog (native <dialog>)
+   ========================================================================== */
+
+.book-dialog {
+  margin: auto;
+  max-height: min(92dvh, 52rem);
+  width: min(100% - 2rem, 40rem);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
+}
+
+.book-dialog::backdrop {
+  background: rgb(12 26 38 / 0.45);
+  backdrop-filter: blur(6px);
+}
+
+@keyframes mc-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+}
+
+@keyframes mc-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .book-dialog[open] {
+    animation: mc-dialog-in 500ms var(--ease-mc);
+  }
+  .book-dialog[open]::backdrop {
+    animation: mc-backdrop-in 400ms var(--ease-mc);
+  }
+}
+
+@media (max-width: 639px) {
+  .book-dialog {
+    margin: auto 0 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 94dvh;
+  }
+}
+
+/* ==========================================================================
+   Scroll expand: a framed photograph that opens to full bleed as you scroll.
+   ========================================================================== */
+
+.se-track {
+  position: relative;
+  width: 100%;
+}
+
+.se-stage {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.se-frame {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(21% 29% 21% 29% round 28px);
+  will-change: clip-path;
+}
+
+.se-media {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+  transform-origin: center;
+}
+
+.se-scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(to top, rgb(12 26 38 / 0.8), rgb(12 26 38 / 0.15) 55%, rgb(12 26 38 / 0.35));
+}
+
+/* The title sits above the framed photo, never on it: navy type over a
+   photograph is not legible. It lifts away as the frame opens. */
+.se-title {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: calc(4.5rem + 3dvh) 6% 0;
+  text-align: center;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+.se-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 6%;
+  text-align: center;
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+/* ==========================================================================
+   Work gallery: native swipe strip, or a pinned horizontal pan on desktop.
+   ========================================================================== */
+
+.work-track {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1.5rem;
+}
+
+.work[data-pinned] .work-frame {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  padding-block: 0;
+  padding-top: 4rem;
+}
+
+.work[data-pinned] .work-track {
+  width: max-content;
+  overflow: visible;
+  scroll-snap-type: none;
+  will-change: transform;
+}
+
+/* ==========================================================================
+   Homes / businesses panels: the hovered panel widens (desktop pointers).
+   ========================================================================== */
+
+@media (min-width: 1024px) {
+  .paths {
+    grid-template-columns: 1fr 1fr;
+    transition: grid-template-columns 800ms var(--ease-mc);
+  }
+}
+
+@media (hover: hover) and (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .paths:has(> :first-child:hover) {
+    grid-template-columns: 1.45fr 1fr;
+  }
+  .paths:has(> :last-child:hover) {
+    grid-template-columns: 1fr 1.45fr;
+  }
+}
+
+/* ==========================================================================
+   Service-area map pulses and the live dot
+   ========================================================================== */
+
+@keyframes mc-ping {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+.ping {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ping {
+    animation: mc-ping 2.6s var(--ease-mc) infinite;
+    animation-delay: var(--d, 0s);
+  }
+}
+
+@keyframes mc-live {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(34 197 94 / 0.55);
+  }
+  60% {
+    box-shadow: 0 0 0 8px rgb(34 197 94 / 0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .live-dot {
+    animation: mc-live 2s ease-out infinite;
+  }
+}
+
+/* ==========================================================================
+   Animated burger
+   ========================================================================== */
+
+.burger {
+  position: relative;
+  display: block;
+  width: 18px;
+  height: 12px;
+}
+
+.burger > span {
+  position: absolute;
+  left: 0;
+  height: 1.5px;
+  width: 100%;
+  border-radius: 2px;
+  background: currentColor;
+  transition:
+    transform 450ms var(--ease-mc),
+    opacity 250ms var(--ease-mc),
+    width 450ms var(--ease-mc);
+}
+
+.burger > span:nth-child(1) {
+  top: 0;
+}
+.burger > span:nth-child(2) {
+  top: 5.25px;
+  width: 70%;
+}
+.burger > span:nth-child(3) {
+  top: 10.5px;
+}
+
+button:hover > .burger > span:nth-child(2) {
+  width: 100%;
+}
+
+@keyframes burger-top {
+  to {
+    transform: translateY(5.25px) rotate(45deg);
+  }
+}
+@keyframes burger-mid {
+  to {
+    opacity: 0;
+    transform: scaleX(0.2);
+  }
+}
+@keyframes burger-bot {
+  to {
+    transform: translateY(-5.25px) rotate(-45deg);
+  }
+}
+
+.burger-x > span:nth-child(1) {
+  animation: burger-top 450ms var(--ease-mc) 80ms forwards;
+}
+.burger-x > span:nth-child(2) {
+  animation: burger-mid 250ms var(--ease-mc) forwards;
+}
+.burger-x > span:nth-child(3) {
+  animation: burger-bot 450ms var(--ease-mc) 80ms forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .burger-x > span {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+  }
+}
+
+/* ScrollFloat character wrapper (inner pages). */
+.sf-wrap {
+  display: inline-block;
+  overflow: hidden;
+  padding-bottom: 0.12em;
+}
+
+.sf-char {
+  display: inline-block;
+}
+
+/* Star ratings: a row of inline SVGs in the star colour. */
+.stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--color-mc-star);
+}
+
+/* Hero photograph: unveils from a rounded inset. Clip only, never opacity. */
+@keyframes mc-unveil {
+  from {
+    clip-path: inset(7% 7% 7% 7% round 2rem);
+  }
+  to {
+    clip-path: inset(0% 0% 0% 0% round 2rem);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-unveil {
+    animation: mc-unveil 1400ms var(--ease-mc) 120ms both;
+  }
 }
